@@ -1,0 +1,260 @@
+﻿/*导航键样式*/
+QPushButton#cur_mode:checked,QPushButton#vel_mode:checked,QPushButton#pos_mode:checked,QPushButton#profile_mode:checked,
+QPushButton#homing_mode:checked{
+        background-color: #111d2b;
+        color:white;
+}
+QPushButton#cur_mode:pressed,QPushButton#vel_mode:pressed,QPushButton#pos_mode:pressed,QPushButton#profile_mode:pressed,
+QPushButton#homing_mode:pressed{
+        background-color: #111d2b
+}
+
+QPushButton#cur_mode,QPushButton#vel_mode,QPushButton#pos_mode,QPushButton#profile_mode,QPushButton#homing_mode{
+        border : none;
+        background-color: #1d2d3c;
+        color:#878088;
+        font:13px;
+        opacity:50;
+}
+
+QWidget{
+    outline:none;
+}
+
+/*标题栏按钮*/
+QPushButton#maximizeButton
+{
+    background-color: transparent;
+    image:url(:/images/maximum_t.png);
+}
+QPushButton#maximizeButton:hover,QPushButton#maximizeButton:pressed
+{
+    image:url(:/images/maximum.png);
+}
+
+QPushButton#minimzieButton
+{
+    background-color: transparent;
+    image:url(:/images/minimum_t.png);
+}
+QPushButton#minimzieButton:hover,QPushButton#minimzieButton:pressed
+{
+    image:url(:/images/minimum.png);
+}
+
+QPushButton#closeButton
+{
+    background-color: transparent;
+    image:url(:/images/close_t.png);
+}
+QPushButton#closeButton:hover
+{
+    image:url(:/images/close.png);
+}
+
+QPushButton#previewButton
+{
+    background-color: transparent;
+    image:url(:/images/preview_t.png);
+}
+QPushButton#previewButton:hover
+{
+    image:url(:/images/preview.png);
+}
+
+/*格子组*/
+QGroupBox {
+    background-color:transparent;
+    border-top: 2px solid #656370;
+    margin-top: 2ex; /* leave space at the top for the title */
+}
+
+QGroupBox#channel1 {
+    background-color:transparent;
+    border-top: 2px solid rgb(255,0,255);
+    margin-top: 2ex; /* leave space at the top for the title */
+}
+
+QGroupBox#channel2 {
+    background-color:transparent;
+    border-top: 2px solid rgb(255,255,0);
+    margin-top: 2ex; /* leave space at the top for the title */
+}
+
+QGroupBox#channel3 {
+    background-color:transparent;
+    border-top: 2px solid rgb(0,255,0);
+    margin-top: 2ex; /* leave space at the top for the title */
+}
+
+QGroupBox#channel4 {
+    background-color:transparent;
+    border-top: 2px solid rgb(0,255,255);
+    margin-top: 2ex; /* leave space at the top for the title */
+}
+
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left; /* position at the top center */
+    padding: 0 1px;
+    color: #656370;
+}
+
+/*参数按钮*/
+ParamWidget QPushButton,InnfosWizard > QPushButton,QPushButton#download,QPushButton#save,InnfosWizardPage > QPushButton,
+InnfosChartWidget > QPushButton,QPushButton#Import,QPushButton#Export,QPushButton#test,QPushButton#ChartOff{
+    border:1px solid #293c4b;
+    border-radius:2px;
+    background-color:#00a072;
+    color:white;
+    min-height:20px;
+}
+
+WarningDialog > QPushButton,MsgBox > QPushButton{
+    border:1px solid #ffffff;
+    border-radius:2px;
+    background-color:#00a072;
+    color:white;
+    min-height:20px;
+}
+
+ParamWidget QPushButton:pressed,InnfosWizard > QPushButton:pressed,QPushButton#download:pressed,QPushButton#save:pressed,
+InnfosWizardPage > QPushButton:pressed,QPushButton#Import:pressed,QPushButton#Export:pressed,QPushButton#test:pressed,
+InnfosChartWidget > QPushButton:pressed,WarningDialog > QPushButton:pressed,QPushButton#ChartOff:pressed,MsgBox > QPushButton:pressed{
+    background-color:#7e7884;
+}
+
+ParamWidget QPushButton:checked,QPushButton#test:checked,InnfosChartWidget > QPushButton:checked,QPushButton#ChartOff:checked{
+    background-color:#1d2d3c;
+    color:#7e7884;
+}
+
+ParamWidget QPushButton#status[offline=true],ParamWidget QPushButton#clearError[hasError=true]{
+    background-color:#e83227;
+}
+
+QPushButton:disabled,InnfosWizardPage > QPushButton:checked,WarningDialog > QPushButton:checked{
+    background-color:#1d2d3c;
+    color:#7e7884;
+    }
+
+ParamWidget QWidget,InnfosWizard QPushButton,QPushButton#download,QPushButton#save,QPushButton#Import,QPushButton#Export,
+WarningDialog QPushButton,MsgBox > QPushButton{
+    font:11px;
+    color:white;
+}
+
+QPushButton#Import,QPushButton#Export{
+    width:60px;
+}
+
+InnfosWizardPage > QLabel,EditorWidget > QLabel,WarningDialog > QLabel{
+    font:10px;
+    color:#878088;
+}
+
+MsgBox#warning > QLabel{
+    font:14px;
+    color:#394856;
+}
+
+MsgBox#tip > QLabel{
+    font:15px;
+    color:rgb(250,250,250);
+}
+
+
+QLabel#please{
+    font:12px;
+}
+
+ParamWidget QLineEdit::read-only{
+    background-color:#293c4b;
+    border:1px solid #7e7884;
+    }
+
+ParamWidget QLineEdit:disabled,ParamWidget QComboBox:disabled,ParamWidget MyDoubleSpinBox:disabled,InnfosChartWidget MyDoubleSpinBox:disabled{
+    background-color:#293c4b;
+    border:1px solid #7e7884;
+    }
+
+
+ParamWidget QLineEdit,WaveTriggerWidget QLineEdit,ParamWidget QComboBox,MotorMgr QComboBox,ParamWidget MyDoubleSpinBox,InnfosChartWidget MyDoubleSpinBox{
+    background-color:#9d989e;
+    border:1px solid #7e7884;
+    }
+
+EditorWidget QLineEdit{
+    background-color:#9d989e;
+    border:1px solid #7e7884;
+    font:14px;
+    color:white;
+    }
+
+
+InnfosChartWidget > QLineEdit{
+    background-color:#9d989e;
+    border:1px solid #7e7884;
+    color:white;
+    }
+
+InnfosChartWidget  QLabel{
+    color:#878088;
+    font:14px;
+    }
+
+QTableView {
+        border: 1px solid rgb(45, 45, 45);
+        background-color: #1d2d3c;
+        gridline-color: rgb(60, 60, 60);
+}
+
+QTableCornerButton::section{
+    background-color:#1d2d3c;
+    }
+
+QHeaderView{
+    background-color:#1d2d3c;
+}
+
+QHeaderView::section{
+    background-color:#1d2d3c;
+    padding: 5px;
+    border: 1px solid  rgb(60, 60, 60);
+    text-align: center;
+    }
+
+QTreeView{
+    background-color:rgb(24,37,53)/*transparent*/;
+    show-decoration-selected: 1;
+}
+
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    /*border-image: none;*/
+    image: url(:/images/branch_close.png);
+    background-color:rgb(41,60,75);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+    /*border-image: none;*/
+    image: url(:/images/branch_open.png);
+    background-color:rgb(41,60,75);
+}
+
+
+QTreeView::indicator,QCheckBox::indicator{  /** 指示器 **/
+        width: 15px;
+        height: 15px;
+}
+QTreeView::indicator:enabled:unchecked,QCheckBox::indicator:enabled:unchecked {  /** 指示器 - 未选中 **/
+        image: url(:/images/unchecked.png);
+}
+
+QTreeView::indicator:enabled:checked,QCheckBox::indicator:enabled:checked {  /** 指示器 - 选中 **/
+        image: url(:/images/checked.png);
+}
+

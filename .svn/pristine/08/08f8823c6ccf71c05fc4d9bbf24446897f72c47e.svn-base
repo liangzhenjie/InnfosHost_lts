@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Filter</class>
+ <widget class="QDialog" name="Filter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>529</width>
+    <height>332</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>511</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+   </property>
+   <property name="currentIndex">
+    <number>1</number>
+   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Settings</string>
+    </attribute>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_2">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Type</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_4">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Poles</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="label_5">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Frequency</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Current</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLabel" name="label_8">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Velocity</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="comboBox_2">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="label_10">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QLineEdit" name="lineEdit_2">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Positon</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="comboBox_3">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QLabel" name="label_13">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QLineEdit" name="lineEdit_3">
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 9pt &quot;微软雅黑&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Family</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <attribute name="title">
+     <string>calibration</string>
+    </attribute>
+    <widget class="QCheckBox" name="calibration">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 8pt &quot;微软雅黑&quot;;</string>
+     </property>
+     <property name="text">
+      <string>校准开启</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="velocity">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>40</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 8pt &quot;微软雅黑&quot;;</string>
+     </property>
+     <property name="text">
+      <string>速度波形</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>70</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 8pt &quot;微软雅黑&quot;;</string>
+     </property>
+     <property name="text">
+      <string>角度偏置</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="angle_offset">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>70</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="start">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 8pt &quot;微软雅黑&quot;;</string>
+     </property>
+     <property name="text">
+      <string>start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="readAngle">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 8pt &quot;微软雅黑&quot;;</string>
+     </property>
+     <property name="text">
+      <string>readAngle</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboBox_2</sender>
+   <signal>activated(int)</signal>
+   <receiver>Filter</receiver>
+   <slot>onTypeChange(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_3</sender>
+   <signal>activated(int)</signal>
+   <receiver>Filter</receiver>
+   <slot>onTypeChange(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>100</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>398</x>
+     <y>241</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_2</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>389</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>441</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>calibration</sender>
+   <signal>clicked()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>263</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_3</sender>
+   <signal>editingFinished()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>497</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>280</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>activated(int)</signal>
+   <receiver>Filter</receiver>
+   <slot>onTypeChange(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>235</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>velocity</sender>
+   <signal>clicked()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>angle_offset</sender>
+   <signal>returnPressed()</signal>
+   <receiver>Filter</receiver>
+   <slot>onValueChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>62</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onTypeChange(int)</slot>
+  <slot>onValueChange()</slot>
+ </slots>
+</ui>

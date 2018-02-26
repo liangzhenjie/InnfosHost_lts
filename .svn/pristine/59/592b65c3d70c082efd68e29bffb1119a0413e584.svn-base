@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MotorForm</class>
+ <widget class="QWidget" name="MotorForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>292</width>
+    <height>163</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>291</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QFrame#frame{
+background-color: rgb(25, 38, 54);
+border: 2px solid rgb(25, 38, 54);
+border-radius: 8px;
+}
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QWidget" name="leftwidget" native="true">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget#leftwidget{
+background-color: rgb(17, 29, 43);
+border-left: 2px solid rgb(25, 38, 54);
+border-top: 2px solid rgb(25, 38, 54);
+border-bottom: 2px solid rgb(25, 38, 54);
+border-top-left-radius:8;
+border-bottom-left-radius:8;
+}</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLineEdit" name="local_Id">
+         <property name="styleSheet">
+          <string notr="true">font: 75 11pt &quot;Microsoft YaHei UI&quot;;
+color: rgb(255, 255, 255);
+background-color:transparent;
+border:none;</string>
+         </property>
+         <property name="text">
+          <string>01</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btn_cur">
+         <property name="styleSheet">
+          <string notr="true">background-color: transparent;
+border:none</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="images.qrc">
+           <normaloff>:/images/icon_cur_t.png</normaloff>
+           <activeon>:/images/icon_cur.png</activeon>:/images/icon_cur_t.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btn_vel">
+         <property name="styleSheet">
+          <string notr="true">background-color: transparent;
+border:none</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="images.qrc">
+           <normaloff>:/images/icon_vel_t.png</normaloff>
+           <activeon>:/images/icon_vel.png</activeon>:/images/icon_vel_t.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btn_pos">
+         <property name="styleSheet">
+          <string notr="true">background-color: transparent;
+border:none</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="images.qrc">
+           <normaloff>:/images/icon_pos_t.png</normaloff>
+           <activeon>:/images/icon_pos.png</activeon>:/images/icon_pos_t.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QGridLayout" name="gridLayout" columnstretch="0,2,3">
+       <item row="0" column="2">
+        <widget class="QLabel" name="label">
+         <property name="styleSheet">
+          <string notr="true">font: 75 9pt &quot;Microsoft JhengHei UI&quot;;
+color: rgb(97, 94, 101);</string>
+         </property>
+         <property name="text">
+          <string>ID:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="styleSheet">
+            <string notr="true">font: 75 7pt &quot;Microsoft JhengHei UI&quot;;
+color: rgb(97, 94, 101);</string>
+           </property>
+           <property name="text">
+            <string>Communication via :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_6">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(0, 160, 119);
+font: 8pt &quot;Microsoft YaHei UI&quot;;</string>
+           </property>
+           <property name="text">
+            <string>RS232-COM3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="styleSheet">
+            <string notr="true">font: 75 7pt &quot;Microsoft JhengHei UI&quot;;
+color: rgb(97, 94, 101);</string>
+           </property>
+           <property name="text">
+            <string>Transfer Rate :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_7">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(0, 160, 119);
+font: 8pt &quot;Microsoft YaHei UI&quot;;</string>
+           </property>
+           <property name="text">
+            <string>RS232-COM3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="styleSheet">
+            <string notr="true">font: 75 7pt &quot;Microsoft JhengHei UI&quot;;
+color: rgb(97, 94, 101);</string>
+           </property>
+           <property name="text">
+            <string>Position Sensor :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_8">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(0, 160, 119);
+font: 8pt &quot;Microsoft YaHei UI&quot;;</string>
+           </property>
+           <property name="text">
+            <string>RS232-COM3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="cur_label">
+           <property name="styleSheet">
+            <string notr="true">font: 75 7pt &quot;Microsoft JhengHei UI&quot;;
+color: rgb(97, 94, 101);</string>
+           </property>
+           <property name="text">
+            <string>Actural Value :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="cur_value">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(0, 160, 119);</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="cur_tag">
+         <property name="minimumSize">
+          <size>
+           <width>11</width>
+           <height>16</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 160, 119);
+font: 8pt &quot;Microsoft YaHei UI&quot;;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="demand_value">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei UI</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(159, 152, 159);
+border:none;
+color: rgb(255, 255, 255);
+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QSlider" name="horizontalSlider">
+         <property name="styleSheet">
+          <string notr="true">  QSlider::groove:horizontal {
+      border: 1px solid #999999;
+      border-radius: 2px;
+      height: 4px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+      background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+      margin: 2px 0;
+  }
+  
+    QSlider::handle:horizontal {
+      background: #00a071;
+      border: 1px solid #5c5c5c;
+      width: 8px;
+      margin: -1px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+      border-radius: 2px;
+  }</string>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="pageStep">
+          <number>1</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+   <zorder>widget</zorder>
+   <zorder>leftwidget</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>cur_label</zorder>
+   <zorder>label_6</zorder>
+   <zorder>label_7</zorder>
+   <zorder>label_8</zorder>
+   <zorder>cur_value</zorder>
+  </widget>
+ </widget>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
+ <connections/>
+</ui>
