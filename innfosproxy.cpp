@@ -505,7 +505,7 @@ void NoCrcProxy::decode(QByteArray &buf)
     case D_READ_LAST_STATE:
         if (buf.at(5) == '\x0')
         {
-            MsgBox::Tip(nullptr,tr("Tip"),"Last abnormal shutdown of the device, please check \n the current location of each device is normal!");
+            MsgBox::Tip(nullptr,tr("Tip"),tr("Last abnormal shutdown of the device ID %1, please check \n the current location of each device is normal!").arg(nDeviceId));
         }
         break;
     case D_SET_SWITCH_MOTORS:
@@ -513,6 +513,7 @@ void NoCrcProxy::decode(QByteArray &buf)
         quint8 nValue = buf.at(5);
         if(nValue == 0)//如果设置失败了，保持原来的值不变
         {
+            MsgBox::Tip(nullptr,tr("Tip"),tr("Failed to shutdown the device ID %1, please try again!").arg(nDeviceId));
             Mediator::getInstance()->revertSwitch(nDeviceId);
         }
         else
