@@ -7,9 +7,10 @@
 
 //#define NO_CALIBRATION
 
-Filter::Filter(QWidget *parent) :
+Filter::Filter(quint8 nDeviceId, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Filter)
+    ui(new Ui::Filter),
+    m_nDeviceId(nDeviceId)
 {
     ui->setupUi(this);
     setWindowRole("Filter");
@@ -25,7 +26,7 @@ Filter::Filter(QWidget *parent) :
     initDataReference();
 
     for(int i=0;i<DATA_CNT;++i)
-        motorDataChange(m_nDataRef[i]); //change combobox idx by motor's values;
+        motorDataChange(m_nDeviceId,m_nDataRef[i]); //change combobox idx by motor's values;
     //setWindowFlags(Qt::Tool);
     connect(mediator,&Mediator::dataChange,this,&Filter::motorDataChange);
 #ifndef NO_CALIBRATION
@@ -56,8 +57,10 @@ void Filter::valueChangeByUser()
 
 }
 
-void Filter::motorDataChange(int nId)
+void Filter::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(m_nDeviceId != nDeviceId)
+        return;
     int nStatus = Mediator::getInstance()->getValue(MotorForm::Motor_Data_Id(nId));
     qreal value = Mediator::getInstance()->getValue(MotorForm::Motor_Data_Id(nId));
     QRegExp rx;
@@ -95,7 +98,7 @@ void Filter::motorDataChange(int nId)
     }
 }
 
-void Filter::ShowWindowIfNotExist()
+void Filter::ShowWindowIfNotExist(quint8 nDeviceId)
 {
     QWidgetList allWidgets = QApplication::allWidgets();
     Filter * pFilter = nullptr;
@@ -105,15 +108,32 @@ void Filter::ShowWindowIfNotExist()
         if(pWidget->objectName() == "Filter")
         {
             pFilter = qobject_cast<Filter*>(pWidget);
+            pFilter->raise();
             break;
         }
     }
 
     if(pFilter == nullptr)
     {
-        pFilter = new Filter();
+        pFilter = new Filter(nDeviceId);
     }
     pFilter->show();
+}
+
+void Filter::closeFilter()
+{
+    QWidgetList allWidgets = QApplication::allWidgets();
+    Filter * pFilter = nullptr;
+    for(int i=0;i<allWidgets.size();++i)
+    {
+        QWidget * pWidget = allWidgets.at(i);
+        if(pWidget->objectName() == "Filter")
+        {
+            pFilter = qobject_cast<Filter*>(pWidget);
+            pFilter->close();
+            break;
+        }
+    }
 }
 
 void Filter::onTypeChange(int nIdx)

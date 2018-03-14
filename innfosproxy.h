@@ -55,6 +55,9 @@ enum Directives
     D_SET_PROFILE_VEL_MAX_SPEED=0x25,
     D_SET_PROFILE_VEL_ACC=0x26,
     D_SET_PROFILE_VEL_DEC=0x27,
+    D_SET_SWITCH_MOTORS=0x2a,
+    D_READ_MOTORS_SWITCH=0x2b,
+    D_SET_MOTOR_MAC=0x2c,
     D_SET_CURRENT_PID_MIN = 0x2e,//设置电流环的pid的上下限
     D_SET_CURRENT_PID_MAX=0x2f,
     D_SET_VELOCITY_PID_MIN=0x30,
@@ -145,8 +148,7 @@ enum Directives
 
     D_READ_LAST_STATE=0xb0,//读取上一次状态（是否正常关机）
 
-    D_SET_SWITCH_MOTORS=0x2a,
-    D_READ_MOTORS_SWITCH=0x2b,
+
     D_READ_CURRENT_MAX_VEL=0x28,
     D_SET_CURRENT_MAX_VEL=0x29,
     D_CLEAR_ERROR=0xfe,//清理错误

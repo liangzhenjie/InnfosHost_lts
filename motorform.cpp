@@ -33,6 +33,7 @@
 #include "msgbox.h"
 #include "launchwindow.h"
 #include "filter.h"
+#include <QRegExpValidator>
 
 #define MOTION_EDIT
 
@@ -46,9 +47,7 @@ MotorForm::MotorForm(const quint8 nDeviceId, const quint32 nDeviceMac, QWidget *
     m_deviceMac(nDeviceMac),
     m_xPercent(0.5),
     m_yPercent(0.5),
-    m_pBtnGroup(nullptr),
     m_status(Status_Normal),
-    m_modeId(Mode_None),
     m_requestModeId(Mode_None),
     m_bPressed(false),
     m_pDetail(nullptr),
@@ -59,25 +58,18 @@ MotorForm::MotorForm(const quint8 nDeviceId, const quint32 nDeviceMac, QWidget *
     m_bRequestActual(true),
     m_curErrorId(0)
 {
-
     ui->setupUi(this);
+
     for(int i=CUR_IQ_SET;i<DATA_CNT;++i)
         m_motorData[i] = 0;
     m_motorData[CURRENT_SCALE]= curScale;
     m_motorData[VELOCITY_SCALE] = velScale;
-    m_pBtnGroup = new QButtonGroup(this);
-    m_pBtnGroup->addButton(ui->btn_cur,Mode_Cur);
-    m_pBtnGroup->addButton(ui->btn_vel,Mode_Vel);
-    m_pBtnGroup->addButton(ui->btn_pos,Mode_Profile_Pos);
-    ui->demand_value->setValidator(new QDoubleValidator);
-    connect(m_pBtnGroup,static_cast<void(QButtonGroup:: *)(int)>(&QButtonGroup::buttonClicked),this,&MotorForm::buttonChanged);
-    connect(ui->horizontalSlider,&QSlider::sliderMoved,this,&MotorForm::sliderChange);
-    connect(ui->demand_value,&QLineEdit::editingFinished,this,&MotorForm::demandInput);
+
     connect(this,&MotorForm::dataChange,this,&MotorForm::refreshCurShow);
-    connect(this,&MotorForm::beSelected,this,&MotorForm::enableChildren);
+    //connect(this,&MotorForm::beSelected,this,&MotorForm::enableChildren);
     ui->local_Id->setValidator(new QIntValidator(0,99,this));
     ui->local_Id->setText(tr("%1").arg(m_deviceId,2,10,QLatin1Char('0')));
-    ui->label->setText(tr("ID:%1").arg(m_deviceMac));
+    ui->sn->setText(tr("%1").arg(m_deviceMac));
     connect(ui->local_Id,&QLineEdit::editingFinished,[=]{
         quint8 nId = ui->local_Id->text().toInt();
         if(!MotorMgr::getInstance()->deviceIdHasExist(nId))
@@ -111,33 +103,35 @@ MotorForm::MotorForm(const quint8 nDeviceId, const quint32 nDeviceMac, QWidget *
 
     m_pValueTimer = new QTimer(this);
     connect(m_pValueTimer,&QTimer::timeout,this,&MotorForm::requestActualValue);
-
-    m_pClock = new AngleClock(this);
-    m_pClock->setFixedSize(75,75);
-    m_pClock->move(50,15);
-    connect(this,&MotorForm::dataChange,[=](Motor_Data_Id Id){
-        switch (m_modeId)
-        {
-        case Mode_Cur:
-            if(Id == CUR_ACTURAL)
-                m_pClock->angleChange(m_motorData[Id]/m_motorData[CURRENT_SCALE]*360);
-            break;
-        case Mode_Vel:
-            if(Id == VEL_ACTURAL)
-                m_pClock->angleChange(m_motorData[Id]/m_motorData[VELOCITY_SCALE]*360);
-            break;
-        case Mode_Pos:
-            if(Id == POS_ACTURAL)
-            {
-                m_pClock->angleChange(m_motorData[Id]/128*360);
-            }
-            break;
-        default:
-            break;
-        }
-
+    connect(this,&MotorForm::onlineChange,[=](bool bOnline){
+        if(bOnline)
+            ui->status->setText("Online");
+        else
+            ui->status->setText("Offline");
     });
-
+    connect(ui->clear,&QPushButton::clicked,[=]{
+        if(m_curErrorId > 0)
+            Mediator::getInstance()->clearDeviceError();
+    });
+    connect(ui->detail,&QPushButton::clicked,[=]{
+        MotorMgr::getInstance()->enterDetailWindow();
+    });
+    connect(ui->motorSwitch,&QPushButton::clicked,[=]{
+        ui->motorSwitch->setEnabled(false);
+        if(ui->motorSwitch->text() == "OFF")
+        {
+            setValueByUser(MOTOR_SWITCH,1);
+            launchWindow::launchTip(nullptr);
+        }
+        else
+        {
+            setValueByUser(MOTOR_SWITCH,0);
+        }
+    });
+    //ui->macEdit->setValidator(new QRegExpValidator(QRegExp("^[0-9]*[1-9][0-9]*$"),this));
+#ifdef NO_MAC_EDITOR
+    //ui->macEdit->setVisible(false);
+#endif
     enableChildren(false);
 
 #ifdef RECORD_DATA
@@ -181,7 +175,7 @@ void MotorForm::setDetailWnd(InnfosWindow *pDetail)
 void MotorForm::mouseDoubleClickEvent(QMouseEvent * event)
 {
     Q_UNUSED(event);
-    if(m_modeId != Mode_None)
+    if(m_motorData[MOTOR_MODE] != Mode_None)
     {
         selectMotor();//be sure that when enter detail layer,there has selected motor
         if(isOnline())
@@ -236,7 +230,7 @@ void MotorForm::focusInEvent(QFocusEvent *event)
 
 void MotorForm::focusOutEvent(QFocusEvent *event)
 {
-    if(!MotorMgr::getInstance()->isMultiSelected())
+    if(!MotorMgr::getInstance()->isMultiSelected(this))
         unselectMotor();
     QWidget::focusOutEvent(event);
 }
@@ -246,12 +240,20 @@ void MotorForm::showVersion()
     int nVersionF = (int)(m_motorData[MOTOR_VERSION]/1000000);
     int nVersionS = ((int)m_motorData[MOTOR_VERSION])%1000000/1000;
     int nVersionT = ((int)m_motorData[MOTOR_VERSION])%1000;
-    ui->version->setText(tr("Version: %1.%2.%3").arg(nVersionF).arg(nVersionS).arg(nVersionT));
+    ui->version->setText(tr(" %1.%2.%3").arg(nVersionF).arg(nVersionS).arg(nVersionT));
+}
+
+void MotorForm::switchMotorSuccessfully(bool bOn)
+{
+    QString txt = bOn ? "ON":"OFF";
+    ui->motorSwitch->setText(txt);
+    ui->motorSwitch->setEnabled(true);
+    enableChildren(bOn);
 }
 
 void MotorForm::changeDemand(qreal value)
 {
-    switch (m_modeId) {
+    switch ((int)m_motorData[MOTOR_MODE]) {
     case Mode_Cur:
 //        m_motorData[CUR_DEMAND] = value;
 //        emit dataChange(CUR_DEMAND);
@@ -305,47 +307,39 @@ void MotorForm::activeMode(const int nMode)
 
 void MotorForm::activeModeSuccessfully()
 {
-    m_modeId = m_requestModeId;
-    switch (m_modeId) {
+    m_motorData[MOTOR_MODE] = m_requestModeId;
+    switch ((int)m_motorData[MOTOR_MODE]) {
     case Mode_Cur:
-        ui->cur_tag->setText(tr("C"));
         setValueByUser(CUR_IQ_SET,0,false);//reset demand
         refreshCurShow(CUR_ACTURAL);
-        refreshCurShow(CUR_IQ_SET);//refresh slider and lineedit
-        m_pBtnGroup->button(Mode_Cur)->setChecked(true);
+        ui->mode->setText("current");
         break;
     case Mode_Vel:
-        ui->cur_tag->setText(tr("V"));
         setValueByUser(VEL_SET,0,false);//reset demand
         refreshCurShow(VEL_ACTURAL);
-        refreshCurShow(VEL_SET);//refresh slider and lineedit
-        m_pBtnGroup->button(Mode_Vel)->setChecked(true);
+        ui->mode->setText("velocity");
         break;
     case Mode_Pos:
-        ui->cur_tag->setText(tr("P"));
         //setValueByUser(POS_SET,0,false);//reset demand
         refreshCurShow(POS_ACTURAL);
-        refreshCurShow(POS_SET);//refresh slider and lineedit
-        //m_pBtnGroup->button(Mode_Pos)->setChecked(true);
-
+        ui->mode->setText("position");
         break;
     case Mode_Profile_Pos:
-        ui->cur_tag->setText(tr("P"));
         //setValueByUser(POS_SET,0,false);//reset demand
         refreshCurShow(POS_ACTURAL);
-        refreshCurShow(POS_SET);//refresh slider and lineedit
-        m_pBtnGroup->button(Mode_Profile_Pos)->setChecked(true);
+        ui->mode->setText("pro_position");
         break;
     case Mode_Profile_Vel:
-        //setValueByUser(VEL_SET,0,false);//reset demand
+        setValueByUser(VEL_SET,0,false);//reset demand
+        ui->mode->setText("pro_velocity");
+        break;
+    case Mode_Homing:
+        ui->mode->setText("homing");
         break;
     default:
         break;
     }
 
-    if(m_pDetail)
-        m_pDetail->enableMode(m_modeId);
-    m_pClock->modeChange((Motor_Mode)m_modeId);
 }
 
 void MotorForm::detailClosed()
@@ -354,40 +348,6 @@ void MotorForm::detailClosed()
     MotorMgr::getInstance()->show();
 }
 
-void MotorForm::sliderChange(int nPercent)
-{
-    qreal min = 0;
-    qreal max = 0;
-    getLimit(min,max);
-
-    if(min >= max)
-        return;
-
-    qreal value = (max-min)*nPercent/ui->horizontalSlider->maximum()+min;
-    changeDemand(value);
-    //ui->demand_value->setText(tr("%1").arg());
-}
-
-void MotorForm::demandInput()
-{
-    if (ui->demand_value->isModified())
-    {
-        ui->demand_value->setModified(false);
-        qreal demand = ui->demand_value->text().toDouble();
-        changeDemand(demand);
-//        qreal min = 0;
-//        qreal max = 0;
-//        getLimit(min,max);
-//        if(min >= max)
-//            return;
-//        qreal percent = -1;
-//        percent = (demand-min)/(max-min);
-//        if (percent >= 0)
-//        {
-//            ui->horizontalSlider->setValue(percent*ui->horizontalSlider->maximum());
-//        }
-    }
-}
 
 void MotorForm::refreshCurShow(MotorForm::Motor_Data_Id Id)
 {
@@ -409,49 +369,14 @@ void MotorForm::refreshCurShow(MotorForm::Motor_Data_Id Id)
     case MOTOR_VERSION:
         showVersion();
         break;
+    case MOTOR_SWITCH:
+        switchMotorSuccessfully(m_motorData[MOTOR_SWITCH] == 1);
+        break;
     default:
         break;
     }
 
-    qreal min = 0;
-    qreal max = 0;
-    getLimit(min,max);
     Mediator::getInstance()->deviceDataChange(m_deviceId,Id);//notify mediator data has change
-    switch (Id) {
-    case CUR_ACTURAL:
-        if(m_modeId == Mode_Cur)
-//            ui->cur_value->setText(QString::number(m_motorData[CUR_ACTURAL],'f',6).replace(rx,""));
-        break;
-    case CUR_IQ_SET:
-    case CUR_MINIMAL:
-    case CUR_MAXIMUM:
-        if(m_modeId == Mode_Cur)
-            refreshShow(m_motorData[CUR_ACTURAL],m_motorData[CUR_IQ_SET],min,max);
-
-        break;
-    case VEL_ACTURAL:
-        if(m_modeId == Mode_Vel)
-//            ui->cur_value->setText(QString::number(m_motorData[VEL_ACTURAL],'f',6).replace(rx,""));
-        break;
-    case VEL_SET:
-    case VEL_MINIMAL:
-    case VEL_MAXIMUM:
-        if(m_modeId == Mode_Vel)
-            refreshShow(m_motorData[VEL_ACTURAL],m_motorData[VEL_SET],min,max);
-        break;
-    case POS_ACTURAL:
-        if(m_modeId == Mode_Pos)
-//            ui->cur_value->setText(QString::number(m_motorData[POS_ACTURAL],'f',6).replace(rx,""));
-        break;
-    case POS_SET:
-    case POS_MINIMAL:
-    case POS_MAXIMUM:
-        if(m_modeId == Mode_Pos)
-            refreshShow(m_motorData[POS_ACTURAL],m_motorData[POS_SET],min,max);
-        break;
-    default:
-        break;
-    }
 }
 
 void MotorForm::logData(MotorForm::Motor_Data_Id Id)
@@ -470,12 +395,9 @@ void MotorForm::logData(MotorForm::Motor_Data_Id Id)
 
 void MotorForm::enableChildren(bool bEnable)
 {
-//    ui->btn_cur->setEnabled(bEnable);
-//    ui->btn_vel->setEnabled(bEnable);
-//    ui->btn_pos->setEnabled(bEnable);
     ui->local_Id->setEnabled(bEnable);
-    ui->demand_value->setEnabled(bEnable);
-    ui->horizontalSlider->setEnabled(false);
+    ui->clear->setEnabled(bEnable);
+    ui->detail->setEnabled(bEnable);
 }
 
 void MotorForm::requestActualValue()
@@ -648,20 +570,6 @@ void MotorForm::readParams(QXmlStreamReader *reader)
             }
         }
     }
-}
-
-void MotorForm::refreshShow(qreal acturalValue, qreal demand, qreal min, qreal max)
-{
-    if(min >= max)
-        return;
-    qreal percent = -1;
-    percent = (demand-min)/(max-min);
-    if (percent >= 0)
-    {
-        ui->demand_value->setText(tr("%1").arg(demand));
-        //ui->horizontalSlider->setValue(percent*ui->horizontalSlider->maximum());
-    }
-
 }
 
 quint8 MotorForm::deviceId() const
@@ -937,10 +845,10 @@ void MotorForm::changeStatus(MotorStatus status)
 void MotorForm::selectMotor()
 {
     changeStatus(Status_Select);
-    if(m_modeId == Mode_None/* && m_requestModeId==Mode_None*/)
-    {
-        activeMode(/*Mode_Cur*/m_pBtnGroup->checkedId());
-    }
+//    if(m_modeId == Mode_None/* && m_requestModeId==Mode_None*/)
+//    {
+//        activeMode(/*Mode_Cur*/m_pBtnGroup->checkedId());
+//    }
 
     emit beSelected(true);
 
@@ -1032,7 +940,7 @@ bool MotorForm::isOnline() const
 #ifdef MY_DEBUG
     return true;
 #endif
-    return m_nHeartFailCnt < 10;
+    return m_nHeartFailCnt < 5;
 }
 
 bool MotorForm::isSelected() const
@@ -1042,14 +950,19 @@ bool MotorForm::isSelected() const
 
 void MotorForm::errorOccur(const int nErrorId)
 {
-    if(nErrorId >= 0)
+    if(nErrorId > 0)
     {
         m_curErrorId = nErrorId;
         if(m_errorHistory.size() == nMaxErrorCnt)
             m_errorHistory.pop_back();
         m_errorHistory.push_front(nErrorId);
         emit Mediator::getInstance()->curErrorChange(m_curErrorId);
+
         changeStatus(Status_Error);
+        //change error ui
+        QString key = "0x";
+        key += QString("%1").arg(nErrorId,4,16,QLatin1Char('0'));
+        ui->error->setText(key);
         // pop error messagebox
         QMap<int,QString> errorInfo;
         errorInfo.insert(0x01,QString::fromLocal8Bit("ID:%1 voltage:%2 Overvoltage error!").arg(m_deviceId).arg(m_motorData[VOLTAGE]));
@@ -1088,6 +1001,7 @@ void MotorForm::clearError()
     emit Mediator::getInstance()->curErrorChange(m_curErrorId);
     m_status = m_status &(~Status_Error);
     changeColor();
+    ui->error->setText("");
     //when error clear,the mode change to current automatically;
     m_requestModeId = Mode_Cur;
     activeModeSuccessfully();
@@ -1102,14 +1016,6 @@ void MotorForm::changeColor()
                                  border: 2px solid rgb(25, 38, 54);\
                                  border-radius: 8px;\
                                  }");
-        ui->leftwidget->setStyleSheet(QLatin1String("QWidget#leftwidget{\n"
-            "background-color: rgb(17, 29, 43);\n"
-            "border-left: 2px solid rgb(25, 38, 54);\n"
-            "border-top: 2px solid rgb(25, 38, 54);\n"
-            "border-bottom: 2px solid rgb(25, 38, 54);\n"
-            "border-top-left-radius:8;\n"
-            "border-bottom-left-radius:8;\n"
-            "}"));
     }
 
     if(m_status & Status_Select)
@@ -1119,16 +1025,6 @@ void MotorForm::changeColor()
                              border: 2px solid #068365;\
                              border-radius: 8px;\
                              }");
-        ui->leftwidget->setStyleSheet(QLatin1String("QWidget#leftwidget{\n"
-            "background-color: rgb(17, 29, 43);\n"
-            "border-left: 2px solid #068365;\n"
-            "border-top: 2px solid #068365;\n"
-            "border-bottom: 2px solid #068365;\n"
-            "border-top-left-radius:8;\n"
-            "border-bottom-left-radius:8;\n"
-            "}"));
-        //ui->leftwidget->setStyleSheet(QLatin1String("background-color: rgb(0,160,112);"));
-        //modifyPalette(ui->leftwidget,QPalette::Window,QColor(0,160,112));
     }
 
     if(m_status & Status_Error)
@@ -1138,14 +1034,7 @@ void MotorForm::changeColor()
                                  border: 2px solid rgb(232,50,39);\
                                  border-radius: 8px;\
                                  }");
-        ui->leftwidget->setStyleSheet(QLatin1String("QWidget#leftwidget{\n"
-            "background-color: rgb(17, 29, 43);\n"
-            "border-left: 2px solid rgb(232,50,39);\n"
-            "border-top: 2px solid rgb(232,50,39);\n"
-            "border-bottom: 2px solid rgb(232,50,39);\n"
-            "border-top-left-radius:8;\n"
-            "border-bottom-left-radius:8;\n"
-            "}"));
+
     }
 
     if(m_status & Status_Offline)
@@ -1155,20 +1044,12 @@ void MotorForm::changeColor()
                                  border: 2px solid rgb(255,255,127);\
                                  border-radius: 8px;\
                                  }");
-        ui->leftwidget->setStyleSheet(QLatin1String("QWidget#leftwidget{\n"
-            "background-color: rgb(17, 29, 43);\n"
-            "border-left: 2px solid rgb(255,255,127);\n"
-            "border-top: 2px solid rgb(255,255,127);\n"
-            "border-bottom: 2px solid rgb(255,255,127);\n"
-            "border-top-left-radius:8;\n"
-            "border-bottom-left-radius:8;\n"
-            "}"));
     }
 }
 
 void MotorForm::getLimit(qreal &min, qreal &max)
 {
-    switch (m_modeId) {
+    switch ((int)m_motorData[MOTOR_MODE]) {
     case Mode_Cur:
         min = -m_motorData[CURRENT_SCALE];
         max = m_motorData[CURRENT_SCALE];
@@ -1273,7 +1154,9 @@ MotorMgr::MotorMgr(QWidget *parent):
     QPushButton * pFilterBtn = new QPushButton(tr("calibration"));
     pBtmLayout->addWidget(pFilterBtn);
     connect(pFilterBtn,&QPushButton::clicked,[=]{
-        Filter::ShowWindowIfNotExist();
+        MotorForm * pMotor = getCurSelected();
+        if(pMotor)
+            Filter::ShowWindowIfNotExist(pMotor->deviceId());
     });
 #endif
 
@@ -1967,7 +1850,7 @@ void MotorMgr::enterDetailWindow()
         }
         if(m_pCurSelected)
             pDefault = m_pCurSelected;
-        InnfosWindow * pWnd = new InnfosWindow(nullptr,pDefault->currentMode(),str);
+        InnfosWindow * pWnd = new InnfosWindow(pDefault->deviceId(),nullptr,pDefault->currentMode(),str);
         pDefault->setDetailWnd(pWnd);
         pWnd->show();
         hide();
@@ -1984,7 +1867,7 @@ void MotorMgr::enterDetailWindow()
         }
         if(m_pCurSelected)
             pDefault = m_pCurSelected;
-        InnfosWindow * pWnd = new InnfosWindow(nullptr,pDefault->currentMode(),str);
+        InnfosWindow * pWnd = new InnfosWindow(pDefault->deviceId(),nullptr,pDefault->currentMode(),str);
         pDefault->setDetailWnd(pWnd);
         pDefault->requestAllValue();
         pWnd->show();
@@ -2008,7 +1891,13 @@ QPoint MotorMgr::availablePos(const QPoint oriPos, const QSize availableSize)
     return finalPos;
 }
 
-bool MotorMgr::isMultiSelected() const
+bool MotorMgr::isMultiSelected(MotorForm *pSelect) const
 {
-    return m_bCtrlPressed;
+    return m_bCtrlPressed || pSelect == m_pCurSelected;//这里为了多电机进入时候，最后选中的电机不会因为失去焦点而变成未选择
+}
+
+void MotorForm::on_macEdit_returnPressed()
+{
+    //quint32 value = ui->macEdit->text().toUInt();
+    //InnfosProxy::SendProxy(m_deviceId,D_SET_MOTOR_MAC,value);
 }

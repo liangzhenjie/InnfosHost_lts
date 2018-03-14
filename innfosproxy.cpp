@@ -256,8 +256,6 @@ void InnfosProxy::decode(QByteArray &buf)
         {
             MsgBox::Tip(nullptr,tr("Tip"),"Current maximum is error!");
         }
-
-
     }
         break;
     case D_READ_FILTER_C_STATUS:

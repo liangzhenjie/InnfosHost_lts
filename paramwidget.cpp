@@ -27,7 +27,7 @@
 #include "msgbox.h"
 #include <QDebug>
 
-ParamWidget::ParamWidget(MotorForm::Motor_Mode modeId, QWidget *parent):
+ParamWidget::ParamWidget(quint8 nDeviceId, MotorForm::Motor_Mode modeId, QWidget *parent):
     QWidget(parent),
     m_modeId(modeId),
     m_pClearErrors(nullptr),
@@ -35,7 +35,8 @@ ParamWidget::ParamWidget(MotorForm::Motor_Mode modeId, QWidget *parent):
     m_pTableErrors(nullptr),
     m_pGraph(nullptr),
     m_pBtnActiveMode(nullptr),
-    m_pWaveWidget(nullptr)
+    m_pWaveWidget(nullptr),
+    m_nDeviceId(nDeviceId)
 {
     m_pTableErrors = new QTableWidget(0,1,this);
     m_pTableErrors->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -213,8 +214,8 @@ void ParamWidget::errorBtnChange(bool bHasError)
 }
 
 
-CurWidget::CurWidget(MotorForm::Motor_Mode modeId,QWidget *parent) :
-    ParamWidget(modeId,parent)
+CurWidget::CurWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent) :
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -332,8 +333,8 @@ CurWidget::CurWidget(MotorForm::Motor_Mode modeId,QWidget *parent) :
     QGridLayout * pActualayout = new QGridLayout();
     pActualayout->setContentsMargins(0,5,0,0);
     pActualayout->setVerticalSpacing(3);
-    const char * acturalName[ACTUAL_CNT] = {"Current Actual","Current Demand","Velocity Actual","Position Actual",
-                                            "Voltage Actual","Motor Temperature","Inverter Temperature"};
+    const char * acturalName[ACTUAL_CNT] = {"Actual Current","Current Demand","Actual Velocity","Actual Position",
+                                            "Actual Voltage","Motor Temperature","Inverter Temperature"};
     for(int i=ACTUAL;i<ACTUAL_CNT;++i)
     {
         pActualayout->addWidget(new QLabel(tr(acturalName[i])),i,0,1,1);
@@ -381,11 +382,6 @@ CurWidget::CurWidget(MotorForm::Motor_Mode modeId,QWidget *parent) :
 
         //m_pActuals[i]->setUserData();
     }
-
-    m_pClock = new AngleClock(this);
-    pActualayout->addWidget(m_pClock,ACTUAL,3,3,2);
-    m_pClock->modeChange(MotorForm::Mode_Cur);
-    connect(Mediator::getInstance(),&Mediator::dataChange,this,&CurWidget::clock);
 
     pActuals->setLayout(pActualayout);
     pLayout->addWidget(pActuals,3,1,1,1);
@@ -470,14 +466,14 @@ void CurWidget::initData()
     for(int i=IQ_SET;i<CUR_PARAM_CNT;++i)
     {
         //m_pParams[i]->setValidator(new QDoubleValidator);
-        motorDataChange(m_nParamsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nParamsDataId[i]);
         connect(m_pParams[i],&MyDoubleSpinBox::myValueChanged,this,&CurWidget::valueChangeByUser);
         //connect(m_pParams[i],&MyDoubleSpinBox::stepByChange,this,&CurWidget::valueChangeByUser);
     }
 
     for(int i=ACTUAL; i<ACTUAL_CNT;++i)
     {
-        motorDataChange(m_nActualsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nActualsDataId[i]);
         connect(m_pActuals[i],&QLineEdit::editingFinished,this,&CurWidget::valueChangeByUser);
     }
 
@@ -501,8 +497,10 @@ void CurWidget::valueChangeByUser()
     }
 }
 
-void CurWidget::motorDataChange(int nId)
+void CurWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     for(int i=ACTUAL;i<ACTUAL_CNT;++i)
@@ -546,16 +544,9 @@ void CurWidget::enableMode(bool bEnable)
     m_pWaveWidget->setEnabled(bEnable);
 }
 
-void CurWidget::clock()
-{
-    m_pClock->angleChange(Mediator::getInstance()->getValue(MotorForm::CUR_ACTURAL)/Mediator::getInstance()->curCurrentScale()*360);
-}
-
-
-
 /*速度模式*/
-VelWidget::VelWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
-    ParamWidget(modeId,parent)
+VelWidget::VelWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId, QWidget *parent) :
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -597,8 +588,8 @@ VelWidget::VelWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
     pReguLayout->setVerticalSpacing(3);
     pReguLayout->setColumnStretch(2,5);
     const char * name[VEL_PARAM_CNT] = {"Setting","Proportional","Integral","Minimal","Maximum"};
-    const char * actualName[ACTUAL_CNT] = {"Velocity Actual","Velocity Demand","Current Actual","Position Actual",
-                                           "Voltage Actual","Motor Temperature","Inverter Temperature"};
+    const char * actualName[ACTUAL_CNT] = {"Actual Velocity","Velocity Demand","Actual Current","Actual Position",
+                                           "Actual Voltage","Motor Temperature","Inverter Temperature"};
     double spinBoxAttr[VEL_PARAM_CNT][ATTR_CNT]={-velScale,velScale,100,
                                                  0,100,0.1,
                                                  0,10,0.01,
@@ -695,10 +686,6 @@ VelWidget::VelWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
             break;
         }
     }
-    m_pClock = new AngleClock(this);
-    pActualayout->addWidget(m_pClock,ACTUAL,3,3,2);
-    m_pClock->modeChange(MotorForm::Mode_Vel);
-    connect(Mediator::getInstance(),&Mediator::dataChange,this,&VelWidget::clock);
     pActuals->setLayout(pActualayout);
     pLayout->addWidget(pActuals,3,0,1,2);
 
@@ -766,12 +753,12 @@ void VelWidget::initData()
         //m_pParams[i]->setValidator(new QDoubleValidator);
         connect(m_pParams[i],&MyDoubleSpinBox::myValueChanged,this,&VelWidget::valueChangeByUser);
 //        connect(m_pParams[i],&MyDoubleSpinBox::stepByChange,this,&VelWidget::valueChangeByUser);
-        motorDataChange(m_nParamsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nParamsDataId[i]);
     }
 
     for(int i=ACTUAL; i<ACTUAL_CNT;++i)
     {
-        motorDataChange(m_nActualsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nActualsDataId[i]);
         connect(m_pActuals[i],&QLineEdit::editingFinished,this,&VelWidget::valueChangeByUser);
     }
 
@@ -802,12 +789,6 @@ void VelWidget::enableMode(bool bEnable)
     m_pWaveWidget->setEnabled(bEnable);
 }
 
-void VelWidget::clock()
-{
-    m_pClock->angleChange(Mediator::getInstance()->getValue(MotorForm::VEL_ACTURAL)/Mediator::getInstance()->curVelocityScale()*360);
-}
-
-
 void VelWidget::valueChangeByUser()
 {
     MyDoubleSpinBox * pSender = qobject_cast<MyDoubleSpinBox *>(sender());
@@ -822,8 +803,10 @@ void VelWidget::valueChangeByUser()
     }
 }
 
-void VelWidget::motorDataChange(int nId)
+void VelWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     for(int i=ACTUAL;i<ACTUAL_CNT;++i)
@@ -846,8 +829,8 @@ void VelWidget::motorDataChange(int nId)
 }
 
 /*位置模式*/
-PosWidget::PosWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
-    ParamWidget(modeId,parent)
+PosWidget::PosWidget(quint8 nDeviceId, MotorForm::Motor_Mode modeId, QWidget *parent) :
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -890,8 +873,8 @@ PosWidget::PosWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
     pReguLayout->setColumnStretch(2,5);
     const char * name[POS_PARAM_CNT] = {"Setting","Proportional","Integral","Differential","Minimal","Maximum","Step Add",
                                   "Min Position","Max Position","Offset"};
-    const char * actualsName[ACTUAL_CNT] = {"Position Actual","Position Demand","Current Actual","Velocity Actual",
-                                            "Voltage Actual","Motor Temperature","Inverter Temperature"};
+    const char * actualsName[ACTUAL_CNT] = {"Actual Position","Position Demand","Actual Current","Actual Velocity",
+                                            "Actual Voltage","Motor Temperature","Inverter Temperature"};
     double spinBoxAttr[POS_PARAM_CNT][ATTR_CNT]={-128,128,1,
                                                  0,100,0.1,
                                                  0,10,0.01,
@@ -1026,11 +1009,6 @@ PosWidget::PosWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
         }
     }
 
-    m_pClock = new AngleClock(this);
-    pActualayout->addWidget(m_pClock,ACTUAL,3,3,2);
-    m_pClock->modeChange(MotorForm::Mode_Pos);
-    connect(Mediator::getInstance(),&Mediator::dataChange,this,&PosWidget::clock);
-
 
     pActuals->setLayout(pActualayout);
     pLayout->addWidget(pActuals,3,1,1,1);
@@ -1101,12 +1079,12 @@ void PosWidget::initData()
     {
         connect(m_pParams[i],&MyDoubleSpinBox::myValueChanged,this,&PosWidget::valueChangeByUser);
         //connect(m_pParams[i],&MyDoubleSpinBox::stepByChange,this,&PosWidget::valueChangeByUser);
-        motorDataChange(m_nParamsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nParamsDataId[i]);
     }
 
     for(int i=ACTUAL; i<ACTUAL_CNT;++i)
     {
-        motorDataChange(m_nActualsDataId[i]);
+        motorDataChange(m_nDeviceId,m_nActualsDataId[i]);
         connect(m_pActuals[i],&QLineEdit::editingFinished,this,&PosWidget::valueChangeByUser);
     }
     connect(Mediator::getInstance(),&Mediator::dataChange,this,&PosWidget::motorDataChange);
@@ -1159,11 +1137,6 @@ void PosWidget::stepMinus()
     }
 }
 
-void PosWidget::clock()
-{
-    m_pClock->angleChange(Mediator::getInstance()->getValue(MotorForm::POS_ACTURAL)/128*360);
-}
-
 
 void PosWidget::valueChangeByUser()
 {
@@ -1179,8 +1152,10 @@ void PosWidget::valueChangeByUser()
     }
 }
 
-void PosWidget::motorDataChange(int nId)
+void PosWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     for(int i=SET;i<POS_PARAM_CNT;++i)
@@ -1202,8 +1177,8 @@ void PosWidget::motorDataChange(int nId)
 }
 
 /*profile pos mode*/
-ProfilePosWidget::ProfilePosWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
-    ParamWidget(modeId,parent)
+ProfilePosWidget::ProfilePosWidget(quint8 nDeviceId, MotorForm::Motor_Mode modeId, QWidget *parent) :
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -1244,7 +1219,7 @@ ProfilePosWidget::ProfilePosWidget(MotorForm::Motor_Mode modeId, QWidget *parent
     pReguLayout->setVerticalSpacing(3);
     pReguLayout->setColumnStretch(2,5);
     const char * name[PROFILE_POS_PARAM_CNT] = {"Target","Profile","Accelerate","Decelerate","Max","Step Add","Min Position","Max Position","Offset",
-                                                "Position Actual","Position Demand","Current Actual","Velocity Actual","Voltage Actual",
+                                                "Actual Position","Position Demand","Actual Current","Actual Velocity","Actual Voltage",
                                                 "Motor Temperature","Inverter Temperature"};
     double spinBoxAttr[ACTUAL][ATTR_CNT]={-128,128,1,
                                          -1,1,0.001,
@@ -1404,10 +1379,6 @@ ProfilePosWidget::ProfilePosWidget(MotorForm::Motor_Mode modeId, QWidget *parent
             break;
         }
     }
-    m_pClock = new AngleClock(this);
-    pActualayout->addWidget(m_pClock,ACTUAL,3,3,2);
-    m_pClock->modeChange(MotorForm::Mode_Profile_Pos);
-    connect(Mediator::getInstance(),&Mediator::dataChange,this,&ProfilePosWidget::clock);
     pActuals->setLayout(pActualayout);
     pLayout->addWidget(pActuals,3,1,1,1);
 
@@ -1501,7 +1472,7 @@ void ProfilePosWidget::initData()
             connect(pDoubleSpin,&MyDoubleSpinBox::myValueChanged,this,&ProfilePosWidget::valueChangeByUser);
             //connect(pDoubleSpin,&MyDoubleSpinBox::stepByChange,this,&ProfilePosWidget::valueChangeByUser);
         }
-        motorDataChange(m_nDataId[i]);
+        motorDataChange(m_nDeviceId,m_nDataId[i]);
     }
 
     connect(Mediator::getInstance(),&Mediator::dataChange,this,&ProfilePosWidget::motorDataChange);
@@ -1542,11 +1513,6 @@ void ProfilePosWidget::enableMode(bool bEnable)
     m_pWaveWidget->setEnabled(bEnable);
 }
 
-void ProfilePosWidget::clock()
-{
-    m_pClock->angleChange(Mediator::getInstance()->getValue(MotorForm::POS_ACTURAL)/128*360);
-}
-
 void ProfilePosWidget::valueChangeByUser()
 {
     QLineEdit * pSender = qobject_cast<QLineEdit *>(sender());
@@ -1577,8 +1543,10 @@ void ProfilePosWidget::valueChangeByUser()
     }
 }
 
-void ProfilePosWidget::motorDataChange(int nId)
+void ProfilePosWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     switch (nId) {
@@ -1609,8 +1577,8 @@ void ProfilePosWidget::motorDataChange(int nId)
 }
 
 /*profile pos mode*/
-ProfileVelWidget::ProfileVelWidget(MotorForm::Motor_Mode modeId, QWidget *parent) :
-    ParamWidget(modeId,parent)
+ProfileVelWidget::ProfileVelWidget(quint8 nDeviceId, MotorForm::Motor_Mode modeId, QWidget *parent) :
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -1651,8 +1619,8 @@ ProfileVelWidget::ProfileVelWidget(MotorForm::Motor_Mode modeId, QWidget *parent
     pReguLayout->setContentsMargins(0,5,0,0);
     pReguLayout->setVerticalSpacing(3);
     pReguLayout->setColumnStretch(2,5);
-    const char * name[PROFILE_VEL_PARAM_CNT] = {"Target","Profile","Accelerate","Decelerate","Max","Velocity Actual",
-                                                "Velocity Demand","Current Actual","Position Actual","Voltage Actual",
+    const char * name[PROFILE_VEL_PARAM_CNT] = {"Target","Profile","Accelerate","Decelerate","Max","Actual Velocity",
+                                                "Velocity Demand","Actual Current","Actual Position","Actual Voltage",
                                                 "Motor Temperature","Inverter Temperature"};
     qreal velScale = Mediator::getInstance()->curVelocityScale();
     double spinBoxAttr[ACTUAL][ATTR_CNT]={-velScale,velScale,100,
@@ -1665,7 +1633,7 @@ ProfileVelWidget::ProfileVelWidget(MotorForm::Motor_Mode modeId, QWidget *parent
     for(int i=TARGET;i<ACTUAL;++i)
     {
         QLabel * pLabel = new QLabel(tr(name[i]));
-        pLabel->setFixedWidth(90);
+        pLabel->setFixedWidth(110);
         pReguLayout->addWidget(pLabel,i,0,1,1);
         if(i == PROFILE)
         {
@@ -1732,11 +1700,13 @@ ProfileVelWidget::ProfileVelWidget(MotorForm::Motor_Mode modeId, QWidget *parent
     pActualayout->setVerticalSpacing(3);
     for(int i=ACTUAL;i<PROFILE_VEL_PARAM_CNT;++i)
     {
-        pActualayout->addWidget(new QLabel(tr(name[i])),i,0,1,1);
+        QLabel * pLabel = new QLabel(tr(name[i]));
+        pLabel->setFixedWidth(110);
+        pActualayout->addWidget(pLabel,i,0,1,1);
         QLineEdit * pEdit = new QLineEdit(this);
         m_pParams[i] = pEdit;
         pActualayout->addWidget(m_pParams[i],i,1,1,1);
-        m_pParams[i]->setFixedWidth(115);
+        m_pParams[i]->setFixedWidth(180);
         pEdit->setReadOnly(true);
         switch(i)
         {
@@ -1777,13 +1747,8 @@ ProfileVelWidget::ProfileVelWidget(MotorForm::Motor_Mode modeId, QWidget *parent
         }
     }
 
-    m_pClock = new AngleClock(this);
-    pActualayout->addWidget(m_pClock,ACTUAL,3,3,2);
-    m_pClock->modeChange(MotorForm::Mode_Profile_Vel);
-    connect(Mediator::getInstance(),&Mediator::dataChange,this,&ProfileVelWidget::clock);
-
     pActuals->setLayout(pActualayout);
-    pLayout->addWidget(pActuals,3,1,1,1);
+    pLayout->addWidget(pActuals,3,0,1,2);
 
     QGroupBox * pError = new QGroupBox(tr("Error"),this);
     QGridLayout * pErrorLayout = new QGridLayout();
@@ -1868,7 +1833,7 @@ void ProfileVelWidget::initData()
             connect(pDoubleSpin,&MyDoubleSpinBox::myValueChanged,this,&ProfileVelWidget::valueChangeByUser);
 //            connect(pDoubleSpin,&MyDoubleSpinBox::stepByChange,this,&ProfileVelWidget::valueChangeByUser);
         }
-        motorDataChange(m_nDataId[i]);
+        motorDataChange(m_nDeviceId,m_nDataId[i]);
     }
 
     connect(Mediator::getInstance(),&Mediator::dataChange,this,&ProfileVelWidget::motorDataChange);
@@ -1905,12 +1870,6 @@ void ProfileVelWidget::enableMode(bool bEnable)
     m_pWaveWidget->setEnabled(bEnable);
 }
 
-void ProfileVelWidget::clock()
-{
-    m_pClock->angleChange(Mediator::getInstance()->getValue(MotorForm::VEL_ACTURAL)/Mediator::getInstance()->curVelocityScale()*360);
-}
-
-
 
 void ProfileVelWidget::valueChangeByUser()
 {
@@ -1939,8 +1898,10 @@ void ProfileVelWidget::valueChangeByUser()
     }
 }
 
-void ProfileVelWidget::motorDataChange(int nId)
+void ProfileVelWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     switch (nId) {
@@ -1971,8 +1932,8 @@ void ProfileVelWidget::motorDataChange(int nId)
 }
 
 
-HomingWidget::HomingWidget(MotorForm::Motor_Mode modeId, QWidget *parent):
-    ParamWidget(modeId,parent)
+HomingWidget::HomingWidget(quint8 nDeviceId, MotorForm::Motor_Mode modeId, QWidget *parent):
+    ParamWidget(nDeviceId,modeId,parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags());
     modifyPalette(this,QPalette::Window,QColor(41,60,75));
@@ -2204,9 +2165,9 @@ void HomingWidget::initData()
         }
 
 
-        motorDataChange(m_nDataId[i]);
+        motorDataChange(m_nDeviceId,m_nDataId[i]);
     }
-    motorDataChange(MotorForm::HOMING_LIMIT);
+    motorDataChange(m_nDeviceId,MotorForm::HOMING_LIMIT);
     connect(m_pNeedLimit,&QCheckBox::clicked,[=](bool bCheck){
         quint8 value = bCheck?1:0;
         Mediator::getInstance()->setValueByUser(MotorForm::HOMING_LIMIT,value);
@@ -2233,7 +2194,7 @@ void HomingWidget::valueChangeByUser()
                 {
 
                     MsgBox::Tip(nullptr,tr("Warning"),QString::fromLocal8Bit("Protect temperature must be 5℃ or more above \nthe recovery temperature!"));
-                    motorDataChange(m_nDataId[i]);
+                    motorDataChange(m_nDeviceId,m_nDataId[i]);
                     return;
                 }
             }
@@ -2245,8 +2206,10 @@ void HomingWidget::valueChangeByUser()
     }
 }
 
-void HomingWidget::motorDataChange(int nId)
+void HomingWidget::motorDataChange(quint8 nDeviceId, int nId)
 {
+    if(!isCurrentDevice(nDeviceId))
+        return;
     QRegExp rx;
     rx.setPattern("(\\.){0,1}0+$");
     switch (nId) {

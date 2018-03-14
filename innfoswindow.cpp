@@ -16,12 +16,12 @@
 #include "innfoschartwidget.h"
 #include "filter.h"
 
-InnfosWindow::InnfosWindow(QWidget *parent, int nMode, QString nodeName)
+InnfosWindow::InnfosWindow(quint8 nDeviceId,QWidget *parent, int nMode, QString nodeName)
     : QWidget(parent),
       m_pStackedWidget(nullptr),
       m_pGraph(nullptr),
       m_nCurMode(nMode),
-      m_pFilter(nullptr)
+      m_nDeviceId(nDeviceId)
 {
     setWindowFlags(Qt::FramelessWindowHint | windowFlags()/* | Qt::WindowStaysOnTopHint*/);
     resize(900,660);
@@ -36,7 +36,7 @@ InnfosWindow::InnfosWindow(QWidget *parent, int nMode, QString nodeName)
     pHelper->setWidgetResizable(true);  //设置窗体可缩放
     //pHelper->setRubberBandOnResize(true);  //设置橡皮筋效果-可缩
     //pHelper->setRubberBandOnMove(true);  //设置橡皮筋效果-可移动
-    setWindowTitle(tr("UserInterface Version2.0 /%1").arg(nodeName));
+    setWindowTitle(tr("UserInterface Version0.2 /%1").arg(nodeName));
 //#ifdef MAXSION_DEVICE
 //    setWindowTitle(tr("UserInterface Version2.0 /%1").arg(nodeName));
 //#else
@@ -87,19 +87,19 @@ InnfosWindow::InnfosWindow(QWidget *parent, int nMode, QString nodeName)
     }
 
     m_pStackedWidget = new QStackedWidget(this);
-    CurWidget * pCurMode = new CurWidget(MotorForm::Mode_Cur,this);
+    CurWidget * pCurMode = new CurWidget(m_nDeviceId,MotorForm::Mode_Cur,this);
     m_pStackedWidget->addWidget(pCurMode);
-    VelWidget * pVelMode = new VelWidget(MotorForm::Mode_Vel,this);
+    VelWidget * pVelMode = new VelWidget(m_nDeviceId,MotorForm::Mode_Vel,this);
     m_pStackedWidget->addWidget(pVelMode);
-    PosWidget * pPosMode = new PosWidget(MotorForm::Mode_Pos,this);
+    PosWidget * pPosMode = new PosWidget(m_nDeviceId,MotorForm::Mode_Pos,this);
     m_pStackedWidget->addWidget(pPosMode);
-    ProfilePosWidget * pProfilePosMode = new ProfilePosWidget(MotorForm::Mode_Profile_Pos,this);
+    ProfilePosWidget * pProfilePosMode = new ProfilePosWidget(m_nDeviceId,MotorForm::Mode_Profile_Pos,this);
     m_pStackedWidget->addWidget(pProfilePosMode);
 
-    ProfileVelWidget * pProfileVelMode = new ProfileVelWidget(MotorForm::Mode_Profile_Vel,this);
+    ProfileVelWidget * pProfileVelMode = new ProfileVelWidget(m_nDeviceId,MotorForm::Mode_Profile_Vel,this);
     m_pStackedWidget->addWidget(pProfileVelMode);
 
-    HomingWidget * pHomingMode = new HomingWidget(MotorForm::Mode_Homing,this);
+    HomingWidget * pHomingMode = new HomingWidget(m_nDeviceId,MotorForm::Mode_Homing,this);
     m_pStackedWidget->addWidget(pHomingMode);
 
     pLayout->addWidget(m_pStackedWidget,1,1,11,1);
@@ -134,14 +134,16 @@ InnfosWindow::InnfosWindow(QWidget *parent, int nMode, QString nodeName)
     pFilter->setObjectName("save");
     pFilter->setFixedWidth(130);
     connect(pFilter,&QPushButton::clicked,[=]{
-        if(!m_pFilter)
-        {
-            m_pFilter = new Filter;
-            m_pFilter->show();
-            connect(m_pFilter,&Filter::finished,[=]{m_pFilter = nullptr;});
-        }
+        Filter::ShowWindowIfNotExist(m_nDeviceId);
     });
     pLayout->addWidget(pFilter,11,0,1,1,Qt::AlignHCenter);
+
+    connect(Mediator::getInstance(),&Mediator::modeChange,[=](quint8 nDeviceId,int nMode){
+        if(nDeviceId == m_nDeviceId)
+        {
+            enableMode(nMode);
+        }
+    });
 
     pLayout->setRowStretch(7,6);
     pLayout->setRowStretch(9,1);
@@ -235,9 +237,7 @@ void InnfosWindow::closeEvent(QCloseEvent *event)
             break;
         }
     }
-
-    if(m_pFilter)
-        m_pFilter->close();
+    Filter::closeFilter();
 }
 
 void InnfosWindow::showGraph()
@@ -246,6 +246,9 @@ void InnfosWindow::showGraph()
     {
         m_pGraph = new CombineChartWidget((MotorForm::Motor_Mode)m_nCurMode);
         m_pGraph->show();
+    }
+    else {
+        m_pGraph->raise();
     }
 
 }

@@ -8,9 +8,9 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport charts
 
-TARGET = "MicroServo Studio"
+TARGET = "INNFOS Actuator Studio"
 CONFIG(debug ,debug|release){
-TARGET = "MicroServo Studio_lts"
+TARGET = "INNFOS Actuator_lts"
 }
 TEMPLATE = app
 
@@ -106,6 +106,7 @@ FORMS += \
 CONFIG(release ,debug|release){
     DEFINES += NO_CALIBRATION #use to switch calibration func
     DEFINES += RELEASE_LOG #use to record commands that wait to send
+    DEFINES += NO_MAC_EDITOR
 }
 
 

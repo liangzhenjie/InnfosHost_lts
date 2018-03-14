@@ -127,7 +127,11 @@ void Mediator::activeModeSuccessfully(const int nDeviceID)
 {
     MotorForm * pMotor = MotorMgr::getInstance()->getMotorByDeviceId(nDeviceID);
     if(pMotor)
+    {
         pMotor->activeModeSuccessfully();
+        emit modeChange(nDeviceID,pMotor->currentMode());
+    }
+
 }
 
 void Mediator::revertSwitch(const quint8 nDeviceId)
@@ -174,6 +178,7 @@ qreal Mediator::getValue(MotorForm::Motor_Data_Id nDataId) const
 void Mediator::setValueByUser(MotorForm::Motor_Data_Id nDataId, qreal value, bool bSendProxy)
 {
 //    MotorForm * pMotor = MotorMgr::getInstance()->getCurSelected();
+
 //    if(pMotor)
 //        pMotor->setValueByUser(nDataId,value);
     QVector<MotorForm *> selMotors = MotorMgr::getInstance()->allSelectedMotors();
@@ -373,7 +378,7 @@ QVector<qint16> Mediator::errorHistory() const
 
 void Mediator::deviceDataChange(quint8 nDeviceId, MotorForm::Motor_Data_Id Id)
 {
-    dataChange(Id);
+    dataChange(nDeviceId,Id);
 }
 
 void Mediator::deviceOnlineStatus(quint8 nDeviceId, bool bOnline)

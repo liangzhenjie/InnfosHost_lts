@@ -178,6 +178,8 @@ DataUtil::DataUtil()
 
     readDataMap.insert(D_READ_VERSION,MotorForm::MOTOR_VERSION);
 
+    readDataMap.insert(D_READ_MOTOR_MODE,MotorForm::MOTOR_MODE);
+    setDataMap.insert(D_SET_MODE,MotorForm::MOTOR_MODE);
 }
 
 

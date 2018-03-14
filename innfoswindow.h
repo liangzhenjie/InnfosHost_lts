@@ -1,4 +1,4 @@
-#ifndef INNFOSWINDOW_H
+﻿#ifndef INNFOSWINDOW_H
 #define INNFOSWINDOW_H
 
 #include <QWidget>
@@ -13,7 +13,7 @@ class InnfosWindow : public QWidget
     Q_OBJECT
 
 public:
-    InnfosWindow(QWidget *parent = 0,int nMode=0,QString nodeName="Node 1");
+    InnfosWindow(quint8 nDeviceId,QWidget *parent = 0,int nMode=0,QString nodeName="Node 1");
     ~InnfosWindow();
     void enableMode(int nMode);
 protected:
@@ -27,7 +27,7 @@ private:
     QStackedWidget * m_pStackedWidget;
     InnfosChartWidget * m_pGraph;
     int m_nCurMode;
-    Filter * m_pFilter;
+    quint8 m_nDeviceId;
 };
 
 #endif // INNFOSWINDOW_H

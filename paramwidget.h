@@ -19,7 +19,7 @@ class ParamWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ParamWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit ParamWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     virtual void initData()=0;
     virtual ~ParamWidget(){}
     bool isActivate();
@@ -31,7 +31,7 @@ public:
     };
 public slots:
     virtual void valueChangeByUser()=0;//user modify data
-    virtual void motorDataChange(int nId)=0;//motor data change acturally
+    virtual void motorDataChange(quint8 nDeviceId, int nId)=0;//motor data change acturally
     void activeMode(bool bActive);//active mode or not
     virtual void enableMode(bool bEnable)=0;//
     MotorForm::Motor_Mode getModeId()const{
@@ -48,6 +48,7 @@ public slots:
 protected:
     void showErrorHistroy();
     void errorBtnChange(bool bHasError);
+    bool isCurrentDevice(quint8 nDeviceId)const{return m_nDeviceId == nDeviceId;}
 protected:
     QTableWidget * m_pTableErrors;
     QPushButton * m_pClearErrors;
@@ -55,6 +56,7 @@ protected:
     QPushButton * m_pStatus;
     QPushButton * m_pBtnActiveMode;
     WaveTriggerWidget * m_pWaveWidget;
+    quint8 m_nDeviceId;
 private:
     MotorForm::Motor_Mode m_modeId;
     InnfosChartWidget * m_pGraph;
@@ -65,7 +67,7 @@ class CurWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit CurWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit CurWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum CurParams{
         IQ_SET,
         PROPORTIONAL,
@@ -96,9 +98,8 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId, int nId);
     virtual void enableMode(bool bEnable);
-    void clock();
 private:
     MyDoubleSpinBox * m_pParams[CUR_PARAM_CNT];
     QLineEdit * m_pActuals[ACTUAL_CNT];
@@ -109,7 +110,6 @@ private:
     QPushButton * m_pViewGraph;
     int m_nParamsDataId[CUR_PARAM_CNT];
     int m_nActualsDataId[ACTUAL_CNT];
-    AngleClock * m_pClock;
     QPushButton * m_pSwitch;
 };
 
@@ -117,7 +117,7 @@ class VelWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit VelWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit VelWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum VelParams{
         SET,
         PROPORTIONAL,
@@ -145,9 +145,8 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
     virtual void enableMode(bool bEnable);
-    void clock();
 private:
     MyDoubleSpinBox * m_pParams[VEL_PARAM_CNT];
     QLineEdit * m_pActuals[ACTUAL_CNT];
@@ -158,14 +157,13 @@ private:
     QPushButton * m_pViewGraph;
     int m_nParamsDataId[VEL_PARAM_CNT];
     int m_nActualsDataId[ACTUAL_CNT];
-    AngleClock * m_pClock;
 };
 
 class PosWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit PosWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit PosWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum PosParams{
         SET,
         PROPORTIONAL,
@@ -198,11 +196,10 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
     virtual void enableMode(bool bEnable);
     void stepAdd();
     void stepMinus();
-    void clock();
 private:
     MyDoubleSpinBox * m_pParams[POS_PARAM_CNT];
     QLineEdit * m_pActuals[ACTUAL_CNT];
@@ -219,7 +216,6 @@ private:
     QCheckBox * m_pMaxEnable;
     int m_nParamsDataId[POS_PARAM_CNT];
     int m_nActualsDataId[ACTUAL_CNT];
-    AngleClock * m_pClock;
 };
 
 
@@ -227,7 +223,7 @@ class ProfilePosWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit ProfilePosWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit ProfilePosWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum ProfilePosParams{
         TARGET,
         PROFILE,
@@ -254,9 +250,8 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
     virtual void enableMode(bool bEnable);
-    void clock();
 private:
     QWidget * m_pParams[PROFILE_POS_PARAM_CNT];
     QLineEdit * m_pModeEdit;
@@ -267,14 +262,13 @@ private:
 
     QPushButton * m_pViewGraph;
     int m_nDataId[PROFILE_POS_PARAM_CNT];
-    AngleClock * m_pClock;
 };
 
 class ProfileVelWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit ProfileVelWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit ProfileVelWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum ProfileVelParams{
         TARGET,
         PROFILE,
@@ -297,9 +291,9 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
     virtual void enableMode(bool bEnable);
-    void clock();
+
 private:
     QWidget * m_pParams[PROFILE_VEL_PARAM_CNT];
     QLineEdit * m_pModeEdit;
@@ -310,14 +304,13 @@ private:
 
     QPushButton * m_pViewGraph;
     int m_nDataId[PROFILE_VEL_PARAM_CNT];
-    AngleClock * m_pClock;
 };
 
 class HomingWidget : public ParamWidget
 {
     Q_OBJECT
 public:
-    explicit HomingWidget(MotorForm::Motor_Mode modeId,QWidget *parent = 0);
+    explicit HomingWidget(quint8 nDeviceId,MotorForm::Motor_Mode modeId,QWidget *parent = 0);
     enum HomingParams{
         MAX_POS,
         MIN_POS,
@@ -342,7 +335,7 @@ public:
     void initData();
 public slots:
     void valueChangeByUser();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
     virtual void enableMode(bool bEnable);
     void homingCallback();
     void homingCallback2();

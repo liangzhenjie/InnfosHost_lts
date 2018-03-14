@@ -21,7 +21,7 @@ class EditorWidget;
 class AngleClock;
 class QLCDNumber;
 
-#define RECORD_DATA
+//#define RECORD_DATA
 
 class MotorForm : public QWidget
 {
@@ -109,6 +109,7 @@ public:
         CALIBRATION_ANGLE,
         MOTOR_SWITCH,
         MOTOR_VERSION,//
+        MOTOR_MODE,
         CURRENT_MAX_VEL,
         DATA_CNT,
         DATA_CHART,//special data,don't need to save
@@ -143,7 +144,7 @@ public:
         return m_curErrorId;
     }
     Motor_Mode currentMode()const{
-        return (Motor_Mode)m_modeId;
+        return (Motor_Mode)((int)m_motorData[MOTOR_MODE]);
     }
     ~MotorForm();
     void setDeviceIdSuccessfully();
@@ -167,6 +168,7 @@ protected:
     void focusInEvent(QFocusEvent *event)Q_DECL_OVERRIDE;
     void focusOutEvent(QFocusEvent *event)Q_DECL_OVERRIDE;
     void showVersion();
+    void switchMotorSuccessfully(bool bOn);
 public slots:
     void buttonChanged(const int nMode);
     void activeMode(const int nMode);
@@ -177,18 +179,17 @@ public slots:
     void reconnect();
 
 private slots:
-    void sliderChange(int nPercent);
-    void demandInput();
     void refreshCurShow(Motor_Data_Id Id);
     void logData(Motor_Data_Id Id);
     void enableChildren(bool bEnable);
     void requestActualValue();//request value initiatively
     void setOnlineStatus(bool bOnline);
+    void on_macEdit_returnPressed();
+
 private:
     void saveDataToFile(QString fileName);
     void readDataFromFile(QString fileName);
     void readParams(QXmlStreamReader *reader);
-    void refreshShow(qreal acturalValue,qreal demand,qreal min,qreal max);
     void changeColor();
     void getLimit(qreal & min, qreal & max);
 signals:
@@ -199,7 +200,6 @@ signals:
     void currentErrorChange(const int nErrorId);
 private:
     Ui::MotorForm *ui;
-    QButtonGroup * m_pBtnGroup;
 private:
     QPoint m_ptDragPoint;
     QString m_motorCode;//no use
@@ -207,7 +207,7 @@ private:
     quint8 m_deviceId;//device id
     qint16 m_oldDeviceId;//old device id,when new device id is available,is -1
     quint32 m_deviceMac;//mac,never change
-    int m_modeId;
+    //int m_modeId;
     int m_requestModeId;
     qreal m_xPercent;//positon relative to parent
     qreal m_yPercent;
@@ -228,7 +228,6 @@ private:
     QTimer * m_pValueTimer;
     QVector<qint16> m_errorHistory;
     qint16 m_curErrorId;
-    AngleClock * m_pClock;
     bool m_bRequestActual;
 #ifdef RECORD_DATA
     //log file
@@ -237,6 +236,7 @@ private:
     bool m_bCalibrating;
 };
 
+#define motorMgrInst MotorMgr::getInstance()
 class MotorMgr : public QWidget
 {
     Q_OBJECT
@@ -259,7 +259,7 @@ public:
     void setRequestActual(bool bRequest);
     void enterDetailWindow();
     QPoint availablePos(const QPoint oriPos,const QSize availableSize);//return available pos that motors can move to avoid motors out of boundins.
-    bool isMultiSelected()const;
+    bool isMultiSelected(MotorForm * pSelect)const;
     void CheckServosSwitch(quint32 nDelaymsec=100);
 protected:
     //void paintEvent(QPaintEvent *event);

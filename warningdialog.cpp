@@ -44,7 +44,7 @@ WarningDialog::WarningDialog(ErrorType type,QWidget *parent) :
     QVBoxLayout * pVLayout = new QVBoxLayout();
     pVLayout->setContentsMargins(10,10,10,10);
     QLabel * pLogo = new QLabel();
-    pLogo->setPixmap(QPixmap(":/images/micro.png"));
+    pLogo->setPixmap(QPixmap(":/images/micro1.png"));
     pVLayout->addWidget(pLogo);
 
     const char * tip[ERROR_CNT] = {"USB communication failed,\n please check your USB connection and try again!",
@@ -57,7 +57,7 @@ WarningDialog::WarningDialog(ErrorType type,QWidget *parent) :
     pDetail->setPixmap(QPixmap(":/images/warning.png"));
     pDetail->setFixedSize(540,233);
     pVLayout->addWidget(pDetail,0,Qt::AlignHCenter);
-    QPoint pos[ERROR_CNT] = {QPoint(340,100),QPoint(160,100)};
+    QPoint pos[ERROR_CNT] = {QPoint(340,90),QPoint(170,90)};
     QLabel * pError = new QLabel(pDetail);
     pError->setScaledContents(true);
     pError->setPixmap(QPixmap(":/images/tanhao.png"));

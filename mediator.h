@@ -93,10 +93,10 @@ signals:
     void ErrorMsg(const int nDeviceId,const qint32 nMsgId);
     void clearErrorSuccess(const int nDeviceId);
     void startNewPeriodChart();
-
+    void modeChange(quint8 nDeviceId,int nMode);
     void curErrorChange(int nErrorId);
     void chartVauleChange(const int nChannelId,qreal values);//only use by chart
-    void dataChange(MotorForm::Motor_Data_Id Id);
+    void dataChange(quint8 nDeviceId,MotorForm::Motor_Data_Id Id);
     void onlineChange(bool bOnline);
 protected:
     Mediator(QObject * parent=0);

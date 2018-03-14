@@ -12,7 +12,7 @@ class Filter : public QDialog
     Q_OBJECT
 
 public:
-    explicit Filter(QWidget *parent = 0);
+    explicit Filter(quint8 nDeviceId,QWidget *parent = 0);
     ~Filter();
 
 protected:
@@ -32,17 +32,19 @@ protected:
     void valueChangeByUser();
 
 public:
-    static void ShowWindowIfNotExist();
+    static void ShowWindowIfNotExist(quint8 nDeviceId);
+    static void closeFilter();
 public slots:
     void onTypeChange(int nIdx);
     void onValueChange();
-    void motorDataChange(int nId);
+    void motorDataChange(quint8 nDeviceId,int nId);
 private slots:
     void on_readAngle_clicked();
 
 private:
     Ui::Filter *ui;
     int m_nDataRef[DATA_CNT];
+    quint8 m_nDeviceId;
 };
 
 #endif // FILTER_H
